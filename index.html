@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pengumpulan Video</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .char-counter.warning {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 8px;
+            border-radius: 5px;
+        }
+
+        .info-box p {
+            color: #555;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-box strong {
+            color: #333;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .error-alert {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-alert.show {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📹 Form Pengumpulan Video</h1>
+        <p class="subtitle">Silakan lengkapi formulir di bawah ini</p>
+
+        <div class="success-message" id="successMessage">
+            ✅ Data berhasil dikirim ke Google Sheets! Terima kasih atas partisipasi Anda.
+        </div>
+
+        <div class="error-alert" id="errorAlert">
+            ❌ Terjadi kesalahan saat mengirim data. Silakan coba lagi.
+        </div>
+
+        <form id="videoForm">
+            <!-- Nama Lengkap -->
+            <div class="form-group">
+                <label for="namaLengkap">
+                    Nama Lengkap <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="namaLengkap" 
+                    name="namaLengkap" 
+                    placeholder="Masukkan nama lengkap Anda"
+                    required
+                >
+                <div class="error-message" id="errorNama">Nama lengkap harus diisi</div>
+            </div>
+
+            <!-- Kategori -->
+            <div class="form-group">
+                <label for="kategori">
+                    Kategori <span class="required">*</span>
+                </label>
+                <select id="kategori" name="kategori" required>
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="Penelitian">Penelitian</option>
+                    <option value="Pengabdian">Pengabdian</option>
+                </select>
+                <div class="error-message" id="errorKategori">Kategori harus dipilih</div>
+            </div>
+
+            <!-- Judul Video -->
+            <div class="form-group">
+                <label for="judulVideo">
+                    Judul Video <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="judulVideo" 
+                    name="judulVideo" 
+                    placeholder="Masukkan judul video (maksimal 100 karakter)"
+                    maxlength="100"
+                    required
+                >
+                <div class="char-counter" id="charCounter">0/100 karakter</div>
+                <div class="error-message" id="errorJudul">Judul video harus diisi</div>
+            </div>
+
+            <!-- Deskripsi Video -->
+            <div class="form-group">
+                <label for="deskripsiVideo">
+                    Deskripsi Video <span class="required">*</span>
+                </label>
+                <textarea 
+                    id="deskripsiVideo" 
+                    name="deskripsiVideo" 
+                    placeholder="Masukkan deskripsi video Anda (maksimal 5000 karakter)"
+                    maxlength="5000"
+                    required
+                ></textarea>
+                <div class="char-counter" id="charCounterDeskripsi">0/5000 karakter</div>
+                <div class="error-message" id="errorDeskripsi">Deskripsi video harus diisi</div>
+            </div>
+
+            <!-- Link Google Drive -->
+            <div class="form-group">
+                <label for="linkGoogleDrive">
+                    Link Folder Google Drive <span class="required">*</span>
+                </label>
+                <input 
+                    type="url" 
+                    id="linkGoogleDrive" 
+                    name="linkGoogleDrive" 
+                    placeholder="https://drive.google.com/..."
+                    required
+                >
+                <div class="error-message" id="errorLink">Link Google Drive harus diisi dengan format yang valid</div>
+                
+                <div class="info-box">
+                    <p><strong>📋 Persyaratan File:</strong></p>
+                    <p><strong>Video:</strong></p>
+                    <p>• Resolusi: 1080p atau Full HD</p>
+                    <p>• Format: MP4</p>
+                    <p style="margin-top: 10px;"><strong>Gambar Cover/Thumbnail YouTube:</strong></p>
+                    <p>• Ukuran: 1280 x 720 pixels</p>
+                    <p>• Format: JPEG, JPG, atau PNG</p>
+                    <p>• Ukuran maksimal: 2MB</p>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">
+                Kirim Data
+            </button>
+
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px; color: #666;">Mengirim data...</p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // ⚠️ GANTI URL INI DENGAN URL GOOGLE APPS SCRIPT ANDA
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5M4WOThYRPb8wtjcsGSeW9E8wqj-KYk17HbP1wDR1UDXD8QF4r29YOsyBC0Ht8CY_/exec';
+
+        // Character counter untuk judul video
+        const judulInput = document.getElementById('judulVideo');
+        const charCounter = document.getElementById('charCounter');
+
+        judulInput.addEventListener('input', function() {
+            const length = this.value.length;
+            charCounter.textContent = `${length}/100 karakter`;
+            
+            if (length >= 90) {
+                charCounter.classList.add('warning');
+            } else {
+                charCounter.classList.remove('warning');
+            }
+        });
+
+        // Character counter untuk deskripsi video
+        const deskripsiInput = document.getElementById('deskripsiVideo');
+        const charCounterDeskripsi = document.getElementById('charCounterDeskripsi');
+
+        deskripsiInput.addEventListener('input', function() {
+            const length = this.value.length;
+            charCounterDeskripsi.textContent = `${length}/5000 karakter`;
+            
+            if (length >= 4800) {
+                charCounterDeskripsi.classList.add('warning');
+            } else {
+                charCounterDeskripsi.classList.remove('warning');
+            }
+        });
+
+        // Form validation dan submission
+        const form = document.getElementById('videoForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorAlert = document.getElementById('errorAlert');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Reset messages
+            successMessage.classList.remove('show');
+            errorAlert.classList.remove('show');
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+            });
+
+            // Validasi form
+            let isValid = true;
+
+            // Validasi Nama Lengkap
+            const nama = document.getElementById('namaLengkap').value.trim();
+            if (nama === '') {
+                document.getElementById('errorNama').classList.add('show');
+                isValid = false;
+            }
+
+            // Validasi Kategori
+            const kategori = document.getElementById('kategori').value;
+            if (kategori === '') {
+                document.getElementById('errorKategori').classList.add('show');
+                isValid = false;
+            }
+
+            // Validasi Judul Video
+            const judul = document.getElementById('judulVideo').value.trim();
+            if (judul === '') {
+                document.getElementById('errorJudul').classList.add('show');
+                isValid = false;
+            }
+
+            // Validasi Deskripsi Video
+            const deskripsi = document.getElementById('deskripsiVideo').value.trim();
+            if (deskripsi === '') {
+                document.getElementById('errorDeskripsi').classList.add('show');
+                isValid = false;
+            }
+
+            // Validasi Link Google Drive
+            const link = document.getElementById('linkGoogleDrive').value.trim();
+            if (link === '' || !isValidUrl(link)) {
+                document.getElementById('errorLink').classList.add('show');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                return;
+            }
+
+            // Cek apakah URL sudah diganti
+            if (SCRIPT_URL === 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                alert('⚠️ Harap ganti SCRIPT_URL dengan URL Google Apps Script Anda terlebih dahulu!');
+                return;
+            }
+
+            // Tampilkan loading
+            loadingIndicator.classList.add('show');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Mengirim...';
+
+            // Kumpulkan data form
+            const formData = {
+                namaLengkap: nama,
+                kategori: kategori,
+                judulVideo: judul,
+                deskripsiVideo: deskripsi,
+                linkGoogleDrive: link,
+                timestamp: new Date().toLocaleString('id-ID', { 
+                    timeZone: 'Asia/Jakarta',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                })
+            };
+
+            try {
+                // Kirim data ke Google Apps Script
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Penting untuk Google Apps Script
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                // Karena mode no-cors, kita asumsikan berhasil jika tidak ada error
+                console.log('Data terkirim:', formData);
+
+                // Tampilkan success message
+                successMessage.classList.add('show');
+                
+                // Reset form
+                form.reset();
+                charCounter.textContent = '0/100 karakter';
+                charCounter.classList.remove('warning');
+                charCounterDeskripsi.textContent = '0/5000 karakter';
+                charCounterDeskripsi.classList.remove('warning');
+
+                // Scroll ke atas
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // Sembunyikan success message setelah 8 detik
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 8000);
+
+            } catch (error) {
+                console.error('Error:', error);
+                errorAlert.classList.add('show');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                setTimeout(() => {
+                    errorAlert.classList.remove('show');
+                }, 8000);
+            } finally {
+                // Sembunyikan loading
+                loadingIndicator.classList.remove('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Kirim Data';
+            }
+        });
+
+        // Fungsi validasi URL
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Reset error message saat user mulai mengetik
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            element.addEventListener('input', function() {
+                const errorId = 'error' + this.id.charAt(0).toUpperCase() + this.id.slice(1);
+                const errorElement = document.getElementById(errorId);
+                if (errorElement) {
+                    errorElement.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
